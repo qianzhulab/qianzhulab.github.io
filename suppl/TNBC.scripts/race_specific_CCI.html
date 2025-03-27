@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+	<link rel="stylesheet" href="css/carousel.css">
+	<link rel="stylesheet" href="css/prism.css">
+	<link rel="stylesheet" href="css/giotto.css">
+	<script src="js/bootstrap.4.1.0.min.js"></script>
+	<script src="js/carousel.js"></script>
+	<script src="js/prism.js"></script>
+	<script src="js/giotto.js"></script>
+</head>
+	<body data-spy="scroll" data-target="#nex2" data-offset="80">
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+		<h3>Race specific cell cell interactions</h3>
+
+Prerequisite: R and lme4 package.
+Input:
+- `full.matrix.txt`. This file contains the list of cell-cell interactions per ROI, ROI metadata (race and patient ID), and the interaction enrichment/depletion z-score. Each row is a ROI.
+
+<p>
+<h4>Step 1</h4>
+Split the `full.matrix.txt` into a series of files, corresponding to interactions.
+<pre><code class="language-bash">cd groups
+python3 extract.py
+</code></pre>
+
+For example, the file "7 CD152 CD8a--7 CD152 CD8a.txt" contains:
+
+<pre><code class="language-bash">7 CD152 CD8a--7 CD152 CD8a  AA  patient5    1.55560
+7 CD152 CD8a--7 CD152 CD8a  AA  patient6    1.28396
+7 CD152 CD8a--7 CD152 CD8a  AA  patient6    -0.11636
+7 CD152 CD8a--7 CD152 CD8a  AA  patient6    2.22011
+7 CD152 CD8a--7 CD152 CD8a  AA  patient4    1.26598
+7 CD152 CD8a--7 CD152 CD8a  AA  patient4    1.02704
+7 CD152 CD8a--7 CD152 CD8a  AA  patient7    -0.27023
+7 CD152 CD8a--7 CD152 CD8a  AA  patient7    1.42868
+7 CD152 CD8a--7 CD152 CD8a  AA  patient1    0.22347
+7 CD152 CD8a--7 CD152 CD8a  AA  patient1    2.80255
+7 CD152 CD8a--7 CD152 CD8a  AA  patient2    1.97753
+7 CD152 CD8a--7 CD152 CD8a  AA  patient2    2.31938
+7 CD152 CD8a--7 CD152 CD8a  AA  patient3    1.71408
+7 CD152 CD8a--7 CD152 CD8a  AA  patient18   1.82975
+7 CD152 CD8a--7 CD152 CD8a  AA  patient14   1.78164
+7 CD152 CD8a--7 CD152 CD8a  AA  patient14   -0.00288
+...
+</code></pre>
+Where the first column is the interaction, followed by race, then patient ID, and finally interaction z-score (positive if enrichment or negative if depleted).
+<p>
+<h4>Step 2</h4>
+
+Make sure `command1.sh` is in the directory. Then run:
+<pre><code class="language-bash">./command1.sh
+</code></pre>
+
+Content of `command1.sh`:
+<pre><code class="language-bash">IFS=$'\n'; for i in `ls -1 *.txt`; do Rscript do.one.R "$i"; done
+</code></pre>
+
+Content of `do.one.R`:
+<pre><code class="language-R">options(echo=T)
+library(lme4)
+args<-commandArgs(trailingOnly = TRUE)
+print(args)
+x<-read.table(args[1], sep="\t")
+colnames(x)=c("interaction", "group", "patient", "score")
+mixed=lmer(score ~ 1+ group + (1|patient), data=x)
+reduced.mixed=lmer(score ~ 1 + (1|patient), data=x)
+an=anova(mixed, reduced.mixed)
+#an$"Pr(>Chisq)"
+tt<-cbind(t(fixef(mixed)), t(an$"Pr(>Chisq)"))
+write.table(tt, file=paste0("stats/", args), sep="\t", quot=F, row.names=F)
+</code></pre>
+
+This R script `do.one.R` performs the linear mixed mode on an interaction file, e.g. 7 CD152 CD8a--7 CD152 CD8a.txt, and outputs the model coefficient and P-value significance for the statistical comparison: interaction in AA versus interaction in EA. Please see our <a href="https://www.biorxiv.org/content/10.1101/2024.03.17.585428v2">BioRxiv paper</a> for explanation and rationale for using linear mixed model.
+
+The `command1.sh` iterates through all interactions there are in the directory.
+The outputs are in `stats` directory.
+<p>
+<h4>Step 3</h4>
+
+<pre><code class="language-bash">cd stats
+source ../command.sh
+</code></pre>
+
+Content of `command.sh`:
+<pre><code class="language-bash">IFS=$'\n'; for i in `ls -1`; do echo $i; cat "$i"|sed "1d"; done|paste - -|sort -t" " -g -k2 -r|less
+</code></pre>
+
+This will combine all the testing results from all interactions into a summary table, like the following:
+
+<pre><code class="language-bash">9 GranzymeB CD152 HIF1a--9 GranzymeB CD152 HIF1a.txt    1.37754484199537        0.328769288177209       NA      0.150836842476321
+8 PLK1 PanCK Ki67--9 GranzymeB CD152 HIF1a.txt  -0.634285221486421      0.252390878398147       NA      0.214136418469996
+8 PLK1 PanCK Ki67--8 PLK1 PanCK Ki67.txt        1.05368343509042        0.0013638392215268      NA      0.990284913892305
+7 CD152 CD8a--9 GranzymeB CD152 HIF1a.txt       -0.0166020416521173     0.292592851817632       NA      0.049433886078644
+```
+</code></pre>
+
+Where the first column is the interaction, second column is the coefficient (AA), third column is the coefficient (EA), and the last column is the Padj value.
+For example, the interaction "7 CD152 CD8a--9 GranzymeB CD152 HIF1a.txt" is significant (Padj=0.049) and is higher in EA than AA.
+
+
+
+
+
+
+
+	</main>
+	</body>
+</html>

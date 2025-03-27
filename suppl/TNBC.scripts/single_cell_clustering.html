@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+	<link rel="stylesheet" href="css/carousel.css">
+	<link rel="stylesheet" href="css/prism.css">
+	<link rel="stylesheet" href="css/giotto.css">
+	<script src="js/bootstrap.4.1.0.min.js"></script>
+	<script src="js/carousel.js"></script>
+	<script src="js/prism.js"></script>
+	<script src="js/giotto.js"></script>
+</head>
+	<body data-spy="scroll" data-target="#nex2" data-offset="80">
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+		<h3>Single cell clustering (IMC)</h3>
+
+Given: - Cell-by-protein expression matrix. Each row is a single cell. Each column is a protein marker. Values are z-scores of log-normalized protein intensities.
+- single cell coordinates (X and Y). Input files can be obtained at <a href="https://github.com/bernard2012/TNBC.disparity">https://github.com/bernard2012/TNBC.disparity</a>. The file names are "Refined.matrix_v1_TNBC_Clinical_updated_v0.txt" and "Xcen_v0_TNBC_race_reprocessed.txt".
+
+<p>
+<h4>Step 1</h4>
+
+K-means clustering in R using Giotto package:
+		<pre><code class="language-R">library(Matrix)
+library(Giotto)
+cytof<-data.table::fread(file="Refined.matrix_v1_TNBC_Clinical_updated_v0.txt")
+pos<-data.table::fread(file="Xcen_v0_TNBC_race_reprocessed.txt")
+expr=as.matrix(cytof[,-1])
+rownames(expr) = cytof$cell
+cytof_test=createGiottoObject(raw_exprs=t(expr), spatial_locs=pos[,.(X,Y)])
+cytof_test@norm_expr=Matrix::as.matrix(t(expr))
+cytof_test = doKmeans(gobject = cytof_test, expression_values = 'norm', centers = 20, nstart = 10000)
+plotMetaDataHeatmap(cytof_test, expression_values="norm", metadata_cols=c("kmeans"), show_values="original")
+km=pDataDT(cytof_test)
+write.table(file="frequency.kmeans.k20iter10000", km, quot=F, sep="\t", row.names=F)
+</code></pre>
+
+Results saved to a file named frequency.kmeans.k20iter10000.
+<pre><code class="language-bash">cell_ID kmeans
+Case1_ROI1_1    18
+Case1_ROI1_2    6
+Case1_ROI1_3    9
+Case1_ROI1_4    6
+Case1_ROI1_5    5
+Case1_ROI1_6    6
+Case1_ROI1_7    9
+Case1_ROI1_8    6
+Case1_ROI1_9    5
+Case1_ROI1_10   5
+Case1_ROI1_11   15
+Case1_ROI1_12   12
+Case1_ROI1_13   12
+Case1_ROI1_14   20
+Case1_ROI1_15   9
+Case1_ROI1_16   12
+Case1_ROI1_17   6
+Case1_ROI1_18   18
+Case1_ROI1_19   18
+Case1_ROI1_20   5
+...
+</code></pre>
+
+<p>
+
+<h4>Step 2: tSNE</h4>
+<pre><code class="language-R">kmeansk20<-read.table("frequency.kmeans.k20iter10000", head=T)
+colnames(kmeansk20) <- c("cell_ID", "k20.10000")
+cytof_test=addCellMetadata(cytof_test, new_metadata=kmeansk20, by_column=T, column_cell_ID="cell_ID")
+cytof_test <- runPCA(gobject = cytof_test, scale_unit = F, center=T, method="factominer")
+cytof_test <- runtSNE(cytof_test, dim_reduction_to_use=NULL)
+plotTSNE(cytof_test, cell_color="k20.10000", show_center_label=F)
+save(cytof_test, file="cytof_test.RData")
+</code></pre>
+<p>
+
+<h4>Step 3: Annotate cluster</h4>
+<pre><code class="language-R">load("cytof_test.RData")
+kmeansk20<-read.table("frequency.kmeans.k20iter10000", head=T)
+colnames(kmeansk20) <- c("cell_ID", "k20.10000")
+cytof_test=addCellMetadata(cytof_test, new_metadata=kmeansk20, by_column=T, column_cell_ID="cell_ID")
+clusters_cytof=c("1 CD16 CD163 PDL1", "2 PanCK", "3 CD11c pHH3", "4 Vimentin AR PDL1 PLK1", "5 CD11c FOXP3 pHH3 ECadherin", "6 HIF1a", "7 CD152 CD8a", "8 PLK1 PanCK Ki67", "9 GranzymeB CD152 HIF1a", "10 CD68", "11 CD3 CD45 CD4 CD8a CD45RO", "12 CD16 CD163 CD68", "13 CD31 Vimentin AR", "14 CD45 CD45RA CD45RO", "15 CD4 CD3", "16 PanCK VEGF ECadherin", "17 KIFC1 GranzymeB Ki67", "18 Ki67 KIFC1", "19 PLK1 PD1", "20 CD31 CD45RA")
+names(clusters_cytof)=c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+cytof_test=annotateGiotto(cytof_test, annotation_vector=clusters_cytof, cluster_column="k20.10000", name="k20.10000_annot")
+library(stringr)
+cell_metadata<-pDataDT(cytof_test)
+tt=sapply(cell_metadata$cell_ID, function(x) str_locate_all(pattern="_", x)[[1]][2,][1])
+sample=substr(cell_metadata$cell_ID, 1, tt-1)
+state<-cbind(sample, cell_metadata$cell_ID)
+colnames(state)=c("sample", "cell_ID")
+cytof_test=addCellMetadata(cytof_test, new_metadata=state, by_column=T, column_cell_ID="cell_ID")
+</code></pre>
+<p>
+
+<h4>Step 4: Cell-cell interaction</h4>
+Spatial cell-cell interaction analysis per ROI. Be sure to have the `subset.giotto.R` file. The content looks like the following:
+<pre><code class="language-R">do_one_subset <- function(samplex){
+subset1=subsetGiotto(cytof_test, cell_ids=cell_metadata[sample==samplex][["cell_ID"]])
+subset1=createSpatialNetwork(subset1, name="delauney_network")
+#kmeans_annot
+cell_proximities=cellProximityEnrichment(subset1, cluster_column="k20.10000_annot", spatial_network_name="delauney_network", number_of_simulations=1000, set_seed=FALSE)
+write.table(file=paste0("mar23/prox.", samplex, ".txt"), cell_proximities$enrichm_res, quot=F, sep="\t")
+}
+</code></pre>
+
+This will perform the function `do_one_subset()` on one ROI. The input argument is the ROI ID.
+Once the file is in place, load the script in R:
+<pre><code class="language-R">source("subset.giotto.R")
+</code></pre>
+
+Then repeat over all ROIs:
+<pre><code class="language-R">do_one_subset("Case1_ROI1_1")
+do_one_subset("Case1_ROI1_2")
+do_one_subset("Case1_ROI1_3")
+do_one_subset("Case1_ROI1_4")
+do_one_subset("Case1_ROI1_5")
+...
+</code></pre>
+
+<p>
+The output is stored in "mar23/prox.*".
+
+<h4>Final results</h4>
+Each prox.* file in directory mar23, will look like the following:
+<pre><code class="language-bash">unified_int type_int    original    simulations enrichm p_higher_orig   p_lower_orig    p.adj_higher    p.adj_lower PI_value    int_ranking
+1   20 CD31 CD45RA--20 CD31 CD45RA  homo    141 20.082  2.75180728604768    0   1   0   1   8.25542185814303    1
+2   13 CD31 Vimentin AR--13 CD31 Vimentin AR    homo    82  11.627  2.7165994209468 0   1   0   1   8.1497982628404 2
+</code></pre>
+From this we can sort the results based on the enrichment and the PI_value columns.
+
+	</main>
+	</body>
+</html>
