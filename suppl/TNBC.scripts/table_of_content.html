@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+	<link rel="stylesheet" href="css/carousel.css">
+	<link rel="stylesheet" href="css/prism.css">
+	<link rel="stylesheet" href="css/giotto.css">
+	<script src="js/bootstrap.4.1.0.min.js"></script>
+	<script src="js/carousel.js"></script>
+	<script src="js/prism.js"></script>
+	<script src="js/giotto.js"></script>
+</head>
+	<body data-spy="scroll" data-target="#nex2" data-offset="80">
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<h3>Table of content</h3>
+
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Script</th>
+      <th>Zipped input file</th>
+      <th>Individual inputs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T cell exhaustion bubble plot</td>
+      <td><a href="select.expr.Tcell.exh.module.bubble.dec27.html">select.expr.Tcell.exh.module.bubble.dec27.py</a></td>
+<td></td>
+<td><ul>
+<li>curated.ea.list</li>
+      <li>curated.aa.list</li>
+	  </ul></td>
+    </tr>
+    <tr>
+      <td>ESG line plot</td>
+      <td><a href="dec23.plot.select.expr.2.html">dec23.plot.select.expr.2.py</a></td>
+<td></td>
+      <td><ul>
+	  <li>"cell.type.expr.M%s.%s.more.joined.txt" % (module, race)</li></ul></td>
+    </tr>
+    <tr>
+      <td>Generation of ESGs per sample (no plot)</td>
+      <td><a href="diffexpr.module.html">diffexpr.module.py</a></td>
+	<td></td>
+      <td><ul><li>"../dir_%s/Giotto_norm_expr.txt" % sample</li>
+      <li>"../dir_%s/spatial/tissue_positions_list.csv" % sample</li></ul></td>
+    </tr>
+    <tr>
+      <td>Spatial expression plot per query</td>
+      <td><a href="plot_one_across_tumor_nocbar.html">plot_one_across_tumor_nocbar.py</a></td>
+     <td></td>
+	 <td><ul><li>"../dir_%s/Giotto_norm_expr.txt" % sample</li>
+      <li>"../dir_%s/spatial/tissue_positions_list.csv" % sample</li>
+      <li>paper.aa.list</li>
+      <li>paper.ea.list</li></ul></td>
+    </tr>
+    <tr>
+      <td>T cell exhaustion stats (no plot)</td>
+      <td><a href="stats_across_tumor_Tcellexh.html">stats_across_tumor_Tcellexh.py</a></td>
+	  <td></td>
+	  <td><ul><li>"../dir_%s/Giotto_norm_expr.txt" % sample</li>
+      <li>"../dir_%s/spatial/tissue_positions_list.csv" % sample</li>
+      <li>paper.aa.list</li>
+      <li>paper.ea.list</li>
+	  </ul></td>
+    </tr>
+    <tr>
+      <td>ESG heatmap plot per query</td>
+      <td><a href="step3.do.pearson.2.bygene.custom.html">step3.do.pearson.2.bygene.custom.py</a></td>
+	  <td></td>
+      <td><ul><li>"cell.type.expr.%s.%s.more.joined.txt"</li>
+      <li>"order.%s.query.2.txt" % choice</li></ul></td>
+    </tr>
+    <tr>
+      <td>ESG line plot</td>
+      <td><a href="plot.select.expr.2.EA.html">plot.select.expr.2.EA.py</a></td>
+	  <td></td>
+      <td><ul><li>"cell.type.expr.M%s.%s.more.joined.txt" % (module, race)</li>
+	  </ul></td>
+    </tr>
+  </tbody>
+</table>
+	</main>
+	</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+	<link rel="stylesheet" href="css/carousel.css">
+	<link rel="stylesheet" href="css/prism.css">
+	<link rel="stylesheet" href="css/giotto.css">
+	<script src="js/bootstrap.4.1.0.min.js"></script>
+	<script src="js/carousel.js"></script>
+	<script src="js/prism.js"></script>
+	<script src="js/giotto.js"></script>
+</head>
+	<body data-spy="scroll" data-target="#nex2" data-offset="80">
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+		<h3>stats_across_tumor_Tcellexh</h3>
+
+		<pre><code class="language-python">
+import sys
+import os
+import re
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def read_coord(n):
+	f = open(n)
+	Xcen = []
+	cells = []
+	for l in f:
+		l = l.rstrip("\n")
+		ll = l.split(",")
+		cells.append(ll[0])
+		Xcen.append((float(ll[-2]), float(ll[-1])))
+	f.close()
+	Xcen2 = np.empty((len(Xcen), 2), dtype="float32")
+	for ind,(i,j) in enumerate(Xcen):
+		Xcen2[ind, :] = [j,-1.0*i]
+	Xcen = Xcen2
+	return Xcen, cells
+
+def read_expression(n):
+	f = open(n)
+	h = f.readline().rstrip("\n").split()
+	h = [xh.replace(".", "-") for xh in h]
+	num_gene = 0
+	for l in f:
+		l = l.rstrip("\n")
+		num_gene+=1
+	f.close()
+	mat = np.empty((num_gene, len(h)), dtype="float32")
+	f = open(n)
+	f.readline()
+	ig = 0
+	genes = []
+	for l in f:
+		l = l.rstrip("\n")
+		ll = l.split()
+		gene = ll[0]
+		values = [float(v) for v in ll[1:]]
+		mat[ig,:] = values
+		genes.append(gene)
+		ig+=1
+	f.close()
+	return mat, h, genes
+
+def read_list(n):
+	f = open(n)
+	m = []
+	for l in f:
+		l = l.rstrip("\n")
+		m.append(l)
+	f.close()
+	return m
+
+def do_one_sample(sample):
+	#sample = sys.argv[1]
+	mat, cells, genes = read_expression("../../dir_%s/Giotto_norm_expr.txt" % sample)
+	Xcen, Xcells = read_coord("../../dir_%s/spatial/tissue_positions_list.csv" % sample)
+
+	map_cell = {}
+	for ic,c in enumerate(Xcells):
+		map_cell[c] = ic
+
+	good_cell_ind = np.array([map_cell[c] for c in cells])
+	Xcen = Xcen[good_cell_ind, :]
+
+	gene_lists = []
+	'''
+	gene_lists.append(("MKI67", "KIFC1", "PECAM1", "PTPRC"))
+	gene_lists.append(("CD68", "GZMB", "CTLA4", "HIF1A"))
+	gene_lists.append(("ITGAX", "GZMB", "CTLA4","HIF1A"))
+	gene_lists.append(("PECAM1", "PTPRC", "ITGAX", "FOXP3", "CDH1"))
+	gene_lists.append(("CTLA4", "GZMB", "CD8A", "HIF1A"))
+	gene_lists.append(("PLK1", "PDCD1", "MKI67", "KRT8"))
+	'''
+
+	'''
+	gene_lists.append(tuple(read_list("q1.EA.more.txt")))
+	gene_lists.append(tuple(read_list("q2.EA.more.txt")))
+	gene_lists.append(tuple(read_list("q3.EA.more.txt")))
+	gene_lists.append(tuple(read_list("q4.EA.more.txt")))
+	gene_lists.append(tuple(read_list("q5.EA.more.txt")))
+	gene_lists.append(tuple(read_list("q6.EA.more.txt")))
+	'''
+	#gene_lists.append(("CD8A", "CD3D", "TRBC2", "LAG3", "HAVCR2", "CXCL13", "GZMB", "BATF", "CCL3", "CSF1"))
+	gene_lists.append(("CD8A", "CD3D", "TRBC2", "LAG3", "HAVCR2", "CXCL13", "GZMB", "BATF", "CCL3", "CSF1", "TIGIT"))
+	#gene_lists.append(("PTMS", "CAMK1", "HAVCR2", "CDK1", "CSF1", "GZMB", "PDCD1", "ITGAE", "MKI67", "IL13", "TNFRSF18", "IRF4", "TOX", "CCL3", "CXCR6", "GZMB", "FASLG", "TRBC2", "CD8A"))
+
+	map_gene = {}
+	for ig,g in enumerate(genes):
+		map_gene[g] = ig
+
+	averages = {}
+	for ig,aG in enumerate(gene_lists):
+		gene_ids = []
+		for gx in aG:
+			if not gx in map_gene:
+				continue
+			gene_ids.append(map_gene[gx])
+		gene_ids = np.array(gene_ids)
+		avg = np.mean(mat[gene_ids, :], axis=0)
+		averages[ig] = avg
+		#sc = axn.flat[ct].scatter(Xcen[:,0], Xcen[:,1], s=dot_size, c=avg, edgecolors=None, cmap="Reds", vmin=v1, vmax=v2)
+
+	return gene_lists, averages, Xcen
+
+if __name__=="__main__":
+	choice = "ea"	
+	#choice = "aa"	
+	t_list = read_list("paper.%s.list" % choice)
+	#t_list = read_list("curated.%s.list" % choice)
+	#t_list = read_list("all.%s.list" % choice)
+
+	list_g, list_avg, list_Xcen = [], [], []
+	for gsm in t_list:
+		glists, averages, Xcen = do_one_sample(gsm)
+		list_g.append(glists)
+		list_avg.append(averages)
+		list_Xcen.append(Xcen)
+	
+	'''
+	dot_size = 5
+	ncol = 5
+	nrow = int(10 / ncol)
+	size_factor = 3
+	if 10%ncol>0:
+		nrow+=1
+	print(nrow, ncol)
+	f, axn = plt.subplots(nrow, ncol, figsize=(ncol * size_factor, nrow * size_factor))
+	plt.subplots_adjust(hspace=0.1, wspace=0.1)
+	'''
+	ct = 0
+
+	query_id = int(sys.argv[1]) - 1
+	for ind in range(len(t_list)):
+		Xcen = list_Xcen[ind]
+		avg = list_avg[ind][query_id]
+		'''
+		if choice=="ea":
+			if ind==0 or ind==6:
+				avg = avg + 0.2
+		'''
+		v1 = 0
+		v2 = 1.5
+		#sc = axn.flat[ct].scatter(Xcen[:,0], Xcen[:,1], s=dot_size, c=avg, edgecolors=None, cmap="Reds", vmin=v1, vmax=v2)
+		#axn.flat[ct].set_facecolor("white")
+		#f.colorbar(sc, ax=axn.flat[ct])
+		#axn.flat[ct].axis("off")
+		#cutoff=1.0
+		#cutoff=0.85
+		cutoff=0.5
+		mx = np.where(avg>cutoff)[0]
+		print(ind, choice, mx.shape[0], Xcen.shape[0], mx.shape[0] / Xcen.shape[0])
+		ct+=1
+	#plt.savefig("all.EA.metagene.q%d.png" % (query_id+1))
+	#plt.savefig("all.AA.metagene.q%d.png" % (query_id+1))
+
+		</code></pre>
+		<h3>Running Command</h3>
+		<pre><code class="language-python">python3 stats_across_tumor_Tcellexh.py 1</code></pre>
+<h3>Results</h3>
+<p>
+<pre><code>0 aa 0 1289 0.0
+1 aa 100 1654 0.060459492140266025
+2 aa 2 1593 0.0012554927809165098
+3 aa 0 1109 0.0
+4 aa 0 1949 0.0
+5 aa 0 1554 0.0
+6 aa 0 1058 0.0
+7 aa 0 1127 0.0
+8 aa 44 2117 0.020784128483703354
+9 aa 76 1178 0.06451612903225806
+
+0 ea 13 3116 0.00417201540436457
+1 ea 288 1511 0.19060225016545335
+2 ea 0 844 0.0
+3 ea 3 772 0.0038860103626943004
+4 ea 14 1264 0.011075949367088608
+5 ea 3 1325 0.0022641509433962265
+6 ea 10 2088 0.004789272030651341
+7 ea 14 850 0.01647058823529412
+8 ea 0 558 0.0
+9 ea 399 1518 0.2628458498023715
+</code></pre>
+
+</p>
+
+	</main>
+	</body>
+</html>
