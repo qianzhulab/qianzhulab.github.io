@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+    <link rel="stylesheet" href="css/carousel.css">
+    <link rel="stylesheet" href="css/prism.css">
+    <link rel="stylesheet" href="css/giotto.css">
+    <script src="js/bootstrap.4.1.0.min.js"></script>
+    <script src="js/carousel.js"></script>
+    <script src="js/prism.js"></script>
+    <script src="js/giotto.js"></script>
+</head>
+    <body data-spy="scroll" data-target="#nex2" data-offset="80">
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <h3>IMC clustering visualization tutorial</h3>
+
+        <pre><code class="language-R">
+library(Giotto)
+x<-load("cytof_test.RData")
+kmeansk20<-read.table("frequency.kmeans.k20iter10000", head=T)
+colnames(kmeansk20) <- c("cell_ID", "k20.10000")
+cytof_test=addCellMetadata(cytof_test, new_metadata=kmeansk20, by_column=T, column_cell_ID="cell_ID")
+
+pDataDT(cytof_test)
+clusters_cytof = c("1 CD16 CD163 PDL1", "2 PanCK", "3 CD11c pHH3", "4 Vimentin AR PDL1 PLK1", "5 CD11c FOXP3 pHH3 ECadherin", "6 HIF1a", "7 CD152 CD8a", "8 PLK1 PanCK Ki67", "9 GranzymeB CD152 HIF1a", "10 CD68", "11 CD3 CD45 CD4 CD8a CD45RO", "12 CD16 CD163 CD68", "13 CD31 Vimentin AR", "14 CD45 CD45RA CD45RO", "15 CD4 CD3", "16 PanCK VEGF ECadherin", "17 KIFC1 GranzymeB Ki67", "18 Ki67 KIFC1", "19 PLK1 PD1", "20 CD31 CD45RA")
+names(clusters_cytof) = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+cytof_test=annotateGiotto(cytof_test, annotation_vector=clusters_cytof, cluster_column="k20.10000", name="k20_annot")
+plotMetaDataHeatmap(cytof_test, expression_values="norm", metadata_cols=c("k20_annot"), show_values="zscores")
+library(ggplot2)
+pp<-plotMetaDataHeatmap(cytof_test, expression_values="norm", metadata_cols=c("k20_annot"), show_values="zscores")
+pp + coord_flip()
+</code></pre>
+
+<h3>Results</h3>
+<p>
+<img src="pic/imc.tsne.Fig1d.png" style="width:1000px;" class="img-fluid" alt="">
+
+	<pre><code class="language-R">
+load("cytof_test.aug13.RData")
+library(Giotto)
+plotTSNE(cytof_test, cell_color="k20.10000", show_center_label=F)
+	</code></pre>
+
+<h3>Results</h3>
+<p>
+<img src="pic/imc.tsne.Fig1e.png" style="width:600px;" class="img-fluid" alt="">
+
+	<pre><code class="language-R">
+load("cytof_test.aug13.RData")
+library(Giotto)
+dimGenePlot(cytof_test, expression_values="norm", genes=c("Cell_152Sm_CD45", "Cell_173Yb_CD45RO", "Cell_166Er_CD45RA", "Cell_151Eu_CD31", "Cell_159Tb_CD68", "Cell_170Er_CD3", "Cell_143Nd_Vimentin", "Cell_148Nd_PanCK", "Cell_146Nd_CD16", "Cell_175Lu_KIFC1", "Cell_158Gd_ECadherin", "Cell_156Gd_CD4", "Cell_163Dy_VEGF", "Cell_164Dy_HIF1a", "Cell_147Sm_CD163"), cow_n_col=3, point_size=1, dim_reduction_to_use="tsne", dim_reduction_name="tsne", point_border_stroke=0)
+	</code></pre>
+
+	<h3>Running Command</h3>
+		<pre><code class="language-python">python3 km2.test.py both</code></pre>
+
+<h3>Results</h3>
+<p>
+<img src="pic/Figure.1f.marker.expr.png" style="width:1200px;" class="img-fluid" alt="">
+
+
+
+</p>
+
+	</main>
+	</body>
+</html>
