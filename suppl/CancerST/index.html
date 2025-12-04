@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<link rel="stylesheet" href="css/bootstrap.4.1.0.min.css">
+	<link rel="stylesheet" href="css/carousel.css">
+	<link rel="stylesheet" href="css/prism.css">
+	<link rel="stylesheet" href="css/giotto.css">
+	<script src="js/bootstrap.4.1.0.min.js"></script>
+	<script src="js/carousel.js"></script>
+	<script src="js/prism.js"></script>
+	<script src="js/giotto.js"></script>
+</head>
+	<body data-spy="scroll" data-target="#nex2" data-offset="80">
+	<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+<h3>Website for CancerSTFormer</h3>
+
+This is the website for CancerSTFormer. CancerSTFormer consists of a pair of spatially aware transcriptomic foundation models to accommodate niche modeling at different length scales. These models, at the 50um-Local and 250um-Extended scales, possess unique capabilities to recover ligand-target gene relationships, niche-specific differentially expressed genes, and organ-specific metastasis associated genes in diverse cancer applications. CancerSTFormer can also reveal the responses of immune-checkpoint blockade therapies, and other targeted therapies, on patients’ tumors given their ST profiles through gene perturbation analysis.
+
+<br><br>
+Here you find the codes for generating figures and results in the paper.
+
+<br><br>
+
+<!--
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Script</th>
+      <th>Individual inputs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+	  <td>Single cell IMC clustering and spatial cell-cell interaction</td>
+	  <td><a href="single_cell_clustering.html">single_cell_clustering</a></td>
+	  <td><ul><li>Refined.matrix_v1_TNBC_Clinical_updated_v0.txt <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/Refined.matrix_v1_TNBC_Clinical_updated_v0.txt">(file)</a></li>
+	  <li>Xcen_v0_TNBC_race_reprocessed.txt <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/Xcen_v0_TNBC_race_reprocessed.txt">(file)</a></li>
+	  <li>subset.giotto.R <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/subset.giotto.R">(file)</a></li>
+	  </ul></td>
+    </tr>
+	<tr>
+	  <td>Race-specific cell-cell interaction (no plot)</td>
+	  <td><a href="race_specific_CCI.html">race_specific_CCI</a></td>
+	  <td><ul><li>full.matrix.txt <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/groups/full.matrix.txt">(file)</a></li>
+	  <li>command1.sh <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/groups/command1.sh">(file)</a></li>
+	  <li>do.one.R <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/groups/do.one.R">(file)</a></li>
+	  <li>command.sh <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/groups/command.sh">(file)</a></li>
+	  <li>extract.py <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/groups/extract.py">(file)</a></li>
+	  </ul></td>
+	</tr>
+    <tr>
+      <td>T cell exhaustion bubble plot</td>
+      <td><a href="select.expr.Tcell.exh.module.bubble.dec27.html">select.expr.Tcell.exh.module.bubble.dec27.py</a></td>
+<td><ul>
+<li>curated.ea.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Tcellexh/curated.ea.list">(file)</a></li>
+      <li>curated.aa.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Tcellexh/curated.aa.list">(file)</a></li>
+	  <li>GSM files <a href="https://github.com/bernard2012/TNBC.disparity/tree/main/data/Tcellexh">(file)</a></li>
+	  </ul></td>
+    </tr>
+	<tr>
+      <td>ESG heatmap plot per query</td>
+      <td><a href="step3.do.pearson.2.bygene.custom.html">step3.do.pearson.2.bygene.custom.py</a></td>
+      <td><ul><li>"cell.type.expr.%s.%s.more.joined.txt" <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.heatmap/cell.type.expr.M1.AA.more.joined.txt">(file1)</a><a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.heatmap/cell.type.expr.M2.EA.more.joined.txt">(file2)</a></li>
+      <li>"order.%s.query.2.txt" % choice <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.heatmap/order.AA.query.2.txt">(file1)</a><a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.heatmap/order.EA.query.2.txt">(file2)</a></li></ul></td>
+    </tr>
+	<tr>
+      <td>Spatial expression plot per query</td>
+      <td><a href="plot_one_across_tumor_nocbar.html">plot_one_across_tumor_nocbar.py</a></td>
+     <td><ul><li>"dir_%s/Giotto_norm_expr.txt" % sample, "dir_%s/spatial/tissue_positions_list.csv" % sample <a href="https://zenodo.org/records/15115493/files/GSM_giotto_processed.tar.gz?download=1">(gzip file)</a></li>
+      <li>paper.aa.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/spatial.plot/paper.aa.list">(file)</a></li>
+      <li>paper.ea.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/spatial.plot/paper.ea.list">(file)</a></li></ul></td>
+    </tr>
+
+    <tr>
+      <td>ESG line plot (BSW2 Validation Dataset)</td>
+      <td><a href="dec23.plot.select.expr.2.html">dec23.plot.select.expr.2.py</a></td>
+      <td><ul>
+	  <li>"cell.type.expr.M%s.%s.more.joined.txt" % (module, race) <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/cell.type.expr.M1.AA.more.joined.txt">(file1)</a> <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/cell.type.expr.M2.EA.more.joined.txt">(file2)</a></li>
+	  <li>pick_gnes_by_total.py  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/pick_genes_by_total.py">(file)</a></li>
+	  <li>AA.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/AA.list">(file)</a></li>
+	  <li>EA.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/EA.list">(file)</a></li>
+	  <li>sEA files <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/sEA.all.tar.gz">(gzip file)</a></li>
+	  <li>sAA files <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line/sAA.all.tar.gz">(gzip file)</a></li>
+	  </ul></td>
+    </tr>
+    <tr>
+      <td>Generation of ESGs per sample (no plot)</td>
+      <td><a href="diffexpr.module.html">diffexpr.module.py</a></td>
+      <td><ul><li>"dir_%s/Giotto_norm_expr.txt" % sample, "dir_%s/spatial/tissue_positions_list.csv" % sample <a href="https://zenodo.org/records/15115493/files/GSM_giotto_processed.tar.gz?download=1">(gzip file)</a></li></ul></td>
+    </tr>
+    <tr>
+      <td>T cell exhaustion stats (no plot)</td>
+      <td><a href="stats_across_tumor_Tcellexh.html">stats_across_tumor_Tcellexh.py</a></td>
+	  <td><ul><li>"dir_%s/Giotto_norm_expr.txt" % sample, "dir_%s/spatial/tissue_positions_list.csv" % sample <a href="https://zenodo.org/records/15115493/files/GSM_giotto_processed.tar.gz?download=1">(gzip file)</a></li>
+      <li>paper.aa.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/spatial.plot/paper.aa.list">(file)</a></li>
+      <li>paper.ea.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/spatial.plot/paper.ea.list">(file)</a></li>
+	  </ul></td>
+    </tr>
+    
+    <tr>
+      <td>ESG line plot (Georgia Validation dataset)</td>
+      <td><a href="plot.select.expr.2.EA.html">plot.select.expr.2.EA.py</a></td>
+      <td><ul><li>"cell.type.expr.M%s.%s.more.joined.txt" % (module, race) <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/cell.type.expr.M1.AA.more.joined.txt">(file1)</a><a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/cell.type.expr.M2.EA.more.joined.txt">(file2)</a></li>
+	  <li>pick_gnes_by_total.py  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/pick_genes_by_total.py">(file)</a></li>
+      <li>AA.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/AA.list">(file)</a></li>
+      <li>EA.list <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/EA.list">(file)</a></li>
+	  <li>MB files <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/ESG.line.ritu/MB.all.tar.gz">(gzip file)</a></li>
+	  </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery IMC clustering visualization</td>
+      <td><a href="imc.tsne.html">imc.tsne</a></td>
+      <td><ul><li>frequency.kmeans.k20iter10000 <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.1def/frequency.kmeans.k20iter10000">(file)</a></li>
+      <li>cytof_test.RData  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2a/pvalue.2">(file)</a></li>
+      <li>cytof_test.aug13.RData <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2a/pvalue.2">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery IMC race-specific cell-cell interaction landscape</td>
+      <td><a href="do.pearson.2.good.apr17.html">do.pearson.2.good.apr17.py</a></td>
+      <td><ul><li>uniq.clusters <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2a/uniq.clusters">(file)</a></li>
+      <li>pvalue.2  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2a/pvalue.2">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery IMC spatial plots showing examples of BA-specific CCIs</td>
+      <td><a href="visualize.AA.cluster.fig2d.html">visualize.AA.cluster.fig2d.py</a></td>
+      <td><ul> <li>Xcen_v0_TNBC_race_reprocessed.txt <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/Xcen_v0_TNBC_race_reprocessed.txt">(file)</a></li>
+      <li>uniq.clusters <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/uniq.clusters">(file)</a></li>
+      <li>frequency.kmeans.k20iter10000.1 <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/frequency.kmeans.k20iter10000.1">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery IMC spatial plots showing examples of WA-specific CCIs</td>
+      <td><a href="visualize.EA.cluster.fig2e.html">visualize.EA.cluster.fig2e.py</a></td>
+      <td><ul><li>Xcen_v0_TNBC_race_reprocessed.txt  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/Xcen_v0_TNBC_race_reprocessed.txt">(file)</a></li>
+      <li>uniq.clusters <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/uniq.clusters">(file)</a></li>
+      <li>frequency.kmeans.k20iter10000.1 <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.2de/frequency.kmeans.k20iter10000.1">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BA-, WA-Communities for BSW-discovery IMC</td>
+      <td><a href="get_components_bsw_discovery.html">get_components_bsw_discovery.py</a></td>
+      <td><ul><li>bsw.discovery <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3a/bsw.discovery">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BA-, WA-Communities for BSW-validation IMC</td>
+      <td><a href="get_components_bsw_validation.html">get_components_bsw_validation.py</a></td>
+      <td><ul><li>bsw.validation <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3a/bsw.validation">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BA-, WA-Communities for Roswell IMC</td>
+      <td><a href="get_components_roswell.html">get_components_roswell.py</a></td>
+      <td><ul><li>roswell <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3a/roswell">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery survival plot (prognostic significance of BA-Communities)</td>
+      <td><a href="km2.html">km2.py</a></td>
+      <td><ul><li>survival.EA.all.module.both.h  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/survival.EA.all.module.both.h">(file)</a></li>
+      <li>survival.AA.all.module.both.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/survival.AA.all.module.both.h">(file)</a></li>
+      <li>patient.queries.key.attributes.complete <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/patient.queries.key.attributes.complete">(file)</a></li>
+      <li>bsw.discovery.interaction.data.tar.gz <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/bsw.discovery.interaction.data.tar.gz">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>BSW-discovery survival plot (prognostic significance of WA-Communities)</td>
+      <td><a href="km2.EA.html">km2.EA.py</a></td>
+      <td><ul><li>survival.EA.all.module.both.h  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/survival.EA.all.module.both.h">(file)</a></li>
+      <li>survival.AA.all.module.both.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/survival.AA.all.module.both.h">(file)</a></li>
+      <li>patient.queries.key.attributes.complete <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/patient.queries.key.attributes.complete">(file)</a></li>
+      <li>bsw.discovery.interaction.data.tar.gz <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/bsw.discovery.interaction.data.tar.gz">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>Roswell survival plot (prognositic significance of BA-Communities)</td>
+      <td><a href="km2.test.html">roswell/km2.test.py</a></td>
+      <td><ul><li>roswell/clinical.good.10yr.txt  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/clinical.good.10yr.txt">(file)</a></li>
+      <li>roswell/survival.EA.all.both.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/survival.EA.all.both.h">(file)</a></li>
+      <li>roswell/survival.AA.all.module.both.test.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/survival.AA.all.module.both.test.h">(file)</a></li>
+      <li>roswell/roswell.interaction.data.tar.gz <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/roswell.interaction.data.tar.gz">(file)</a></li>
+      </ul></td>
+    </tr>
+   <tr>
+      <td>Roswell survival plot (prognositic significance of WA-Communities)</td>
+      <td><a href="roswell.km2.EA.html">roswell/km2.EA.py</a></td>
+      <td><ul><li>roswell/clinical.good.10yr.txt  <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/clinical.good.10yr.txt">(file)</a></li>
+      <li>roswell/survival.EA.all.both.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/survival.EA.all.both.h">(file)</a></li>
+      <li>roswell/survival.AA.all.module.both.test.h <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/survival.AA.all.module.both.test.h">(file)</a></li>
+      <li>roswell/roswell.interaction.data.tar.gz <a href="https://github.com/bernard2012/TNBC.disparity/blob/main/data/Figure.3cd/roswell/roswell.interaction.data.tar.gz">(file)</a></li>
+      </ul></td>
+    </tr>
+  </tbody>
+</table>
+
+-->
+
+	</main>
+	</body>
+
